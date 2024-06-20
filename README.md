@@ -65,7 +65,7 @@ export default EventBubbleGoalComponent;
 
 ### 3. Routing challenge
 
-Setting the path to * will act as a catch-all for any undefined URLs. This is great for a 404 error page.
+Setting the path to * will be a catch-all for any undefined URLs. This is great for a 404 error page.
 The nested <Route>s inherit and add to the parent route.
 
 ```
@@ -98,9 +98,16 @@ export default function App() {
 # Sample functionalities implementation
 
 ## 1. Implement the below UI with functionality
-Constraints:
-It should have useCallback hook
-It should have a custom hook 
+#### Custom Hook: 
+Custom hooks should start with use, like useFormInput or useFetch.
+Use React's built-in Hooks within your custom Hook as needed.
+Return anything that will be useful for the component using this Hook.
+Each custom hook should be responsible for a single piece of functionality.
+
+Constraints:<br>
+* It should have a useCallback hook
+* It should have a custom hook
+  
 Use Case: Generate 3(dynamic) random numbers and check on the button click if those are the same show "JackPot!" otherwise give some message.
 
 **UI**
@@ -184,6 +191,147 @@ const CheckLuck = () => {
 
 export default CheckLuck;
 ```
+
+## 2. Implement the counter functionality
+
+Constraints:<br>
+* Use the redux toolkit for the state management
+* It should add the counter value asynchronously
+* It should increment the counter by the given value
+
+Create the store and configure the reducers.
+filename is ```store.js```
+
+```javascript
+import { configureStore } from '@reduxjs/toolkit';
+import counterReducer from '../features/counter/counterSlice';
+
+export default configureStore({
+  reducer: {
+    counter: counterReducer,
+  },
+});
+
+```
+
+Pass/configure the store to the application in ```main.js/app.js/index.js``` file
+
+```javascript
+import { Provider } from 'react-redux';
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+);
+```
+
+Create a slice for the counter feature in the ```counterSlice.js``` file.
+```javascript
+import { createSlice } from '@reduxjs/toolkit'
+
+export const counterSlice = createSlice({
+  name: 'counter',
+  initialState: {
+    value: 0,
+  },
+  reducers: {
+    increment: (state) => {
+      // Redux Toolkit allows us to write "mutating" logic in reducers. It doesn't mutate the state because it uses the immer library, which detects changes to a "draft state" and produces a brand new immutable state based on those changes
+      state.value += 1
+    },
+    decrement: (state) => {
+      state.value -= 1
+    },
+    incrementByAmount: (state, action) => {
+      state.value += action.payload
+    },
+  },
+})
+
+export const { increment, decrement, incrementByAmount } = counterSlice.actions
+
+// The function below is called a thunk, allowing us to perform async logic. It can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This will call the thunk with the `dispatch` function as the first argument. Async code can then be executed and other actions can be dispatched
+export const incrementAsync = (amount) => (dispatch) => {
+  setTimeout(() => {
+    dispatch(incrementByAmount(amount))
+  }, 1000)
+}
+
+// Selector and allows us to select a value from the state..For example: `useSelector((state) => state.counter.value)`
+export const selectCount = (state) => state.counter.value
+
+export default counterSlice.reducer
+
+```
+and the main UI component is as follows, filename is 'counter.js'
+```javascript
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  decrement,
+  increment,
+  incrementByAmount,
+  incrementAsync,
+  selectCount,
+} from "./counterSlice";
+import styles from "./Counter.module.css";
+
+export function Counter() {
+  const count = useSelector(selectCount);
+  const dispatch = useDispatch();
+  const [incrementAmount, setIncrementAmount] = useState("2");
+
+  return (
+    <div>
+      <div className={styles.row}>
+        <button
+          className={styles.button}
+          aria-label="Increment value"
+          onClick={() => dispatch(increment())}
+        >
+          +
+        </button>
+        <span className={styles.value}>{count}</span>
+        <button
+          className={styles.button}
+          aria-label="Decrement value"
+          onClick={() => dispatch(decrement())}
+        >
+          -
+        </button>
+      </div>
+      <div className={styles.row}>
+        <input
+          className={styles.textbox}
+          aria-label="Set increment amount"
+          value={incrementAmount}
+          onChange={(e) => setIncrementAmount(e.target.value)}
+        />
+        <button
+          className={styles.button}
+          onClick={() =>
+            dispatch(incrementByAmount(Number(incrementAmount) || 0))
+          }
+        >
+          Add Amount
+        </button>
+        <button
+          className={styles.asyncButton}
+          onClick={() => dispatch(incrementAsync(Number(incrementAmount) || 0))}
+        >
+          Add Async
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+
+
+
+
 
 
 
