@@ -1,23 +1,387 @@
 # react-js-development
 
-* [React JS]() 
+* [React JS]()
+  
 * [Core Concepts]()
+  * [Virtual DOM]()
+  * [Components]()
+  * [Context API]()
+  * [React Hooks]()
+  * [React Router]()
+  * [Error boundary]()
+  * [Lazy loading]()
+  * [SSR- Server Side Rendering]()
+  * [Adding Style -CSS]()
+  * [State and Props]()
+  * [Unit Testing]()
+    
 * [Redux State Management]()
+  * [Redux toolkit]()
+  * [Redux Thunk]()
+  * [Redux Saga]()
+    
 * [React Hooks]()
+  * [Use State Hook]()
+  * [Use Effect Hook]()
+    
 * [Handling Forms]()
 * [Material UI Framework]()
 * [Questions and Answers]()
   
 * [Coding Snippets](https://github.com/kaleeswariP/react-js-development#coding-snippets)
   * [Redux toolkit Basic](https://github.com/kaleeswariP/react-js-development#redux-toolkit-code-snippet)
+  * [Context API implementation]()
+  * [Custom Hook implementation]()
+  * [Redux toolkit with redux-saga]()
+  * [React-router sample]()
   
 * [Coding concepts challenges](https://github.com/kaleeswariP/react-js-development#coding-concepts-challenges)
   
 * [Sample functionalities implementation](https://github.com/kaleeswariP/react-js-development#sample-functionalities-implementation)
   * [Implement the below UI functionality](https://github.com/kaleeswariP/react-js-development?tab=readme-ov-file#1-implement-the-below-ui-with-functionality)
   * [Counter functionality](https://github.com/kaleeswariP/react-js-development?tab=readme-ov-file#2-implement-the-counter-functionality)
-  
 
+* [React Project Development Tools]()
+  * [Storybook]()
+  * [Webpack]()
+  * [Charts libraries]()
+  * [Jest & React Testing Library]()
+  * [Babel, env, prettier, linter]()
+ 
+* [Other Frameworks]()
+  * [Next JS]()
+  * [Vue JS]()
+  * [Gatsby]()
+  
+## React JS
+React.js is a popular open-source JavaScript library developed by Facebook for building user interfaces, particularly for single-page applications.
+
+React allows developers to create large web applications that can update and render efficiently in response to data changes.
+
+### Core concepts of React.js
+
+##### **Components:**
+React is all about building reusable components. Components are the building blocks of a React application, representing parts of the user interface.
+Components can be class-based or function-based (functional components).
+
+Example of a simple functional component:
+```jsx
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>;
+}
+```
+
+##### **JSX (JavaScript XML):**
+*JSX is a syntax extension for JavaScript that looks similar to HTML and is used with React to describe what the UI should look like.*
+
+JSX gets transpiled to JavaScript by tools like Babel before being executed by the browser.
+
+Example of JSX:
+```jsx
+const element = <h1>Hello, world!</h1>;
+```
+##### **Props:**
+Props (short for properties) pass data from one component to another. They are read-only and cannot be modified by the receiving component.
+
+Example of passing props:
+```jsx
+function Greeting(props) {
+  return <h1>Hello, {props.name}</h1>;
+}
+
+<Greeting name="Alice" />
+```
+
+##### **State:**
+
+State is a built-in object that allows components to create and manage their data. Unlike props, the state is mutable and can be changed within the component.
+
+Example of state in a class component:
+```jsx
+class Counter extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 0 };
+  }
+
+  increment = () => {
+    this.setState({ count: this.state.count + 1 });
+  }
+
+  render() {
+    return (
+      <div>
+        <p>Count: {this.state.count}</p>
+        <button onClick={this.increment}>Increment</button>
+      </div>
+    );
+  }
+}
+```
+
+##### **Lifecycle Methods:**
+
+Class components in React have lifecycle methods that allow developers to run code at particular times in the component's life `(e.g., mounting, updating, unmounting)`.
+
+Common lifecycle methods include `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount`.
+
+##### **Hooks:**
+
+Hooks are functions that let you use state and other React features in functional components.
+Common hooks include `useState`, `useEffect`, and `useContext`.
+
+Example of useState and useEffect hooks:
+```jsx
+import React, { useState, useEffect } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    document.title = `Count: ${count}`;
+  }, [count]);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+    </div>
+  );
+}
+
+```
+
+##### **Virtual DOM:**
+
+The virtual DOM is a lightweight copy of the actual DOM. React uses the virtual DOM to efficiently update the real DOM by only re-rendering changed nodes.
+
+This improves performance by minimizing the number of costly DOM manipulations.
+
+##### **One-Way Data Binding:**
+
+React enforces a one-way data flow, meaning that data flows from parent to child components via props. This makes it easier to understand and debug applications.
+
+##### **Declarative UI:**
+
+React allows developers to describe what the UI should look like for a given state, and React handles updating the UI when the state changes.
+
+This declarative approach makes code more predictable and easier to debug.
+
+##### **React Router:**
+
+React Router is a library used to handle routing in React applications, allowing for the creation of single-page applications with multiple views.
+
+Example of basic React Router usage:
+```jsx
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
+function App() {
+  return (
+    <Router>
+      <Switch>
+        <Route path="/about" component={About} />
+        <Route path="/" component={Home} />
+      </Switch>
+    </Router>
+  );
+}
+```
+
+## Core Concepts
+
+### Virtual DOM
+
+### Components
+In React.js, components are the building blocks of the application. 
+They allow developers to split the UI into independent, reusable pieces that can be managed separately. 
+There are several types of components in React, each serving a different purpose and providing various functionalities.
+
+#### Functional Components
+Definition: Functional components are simple JavaScript functions that accept props as arguments and return React elements (JSX).
+
+Characteristics:
+
+* Stateless until the introduction of hooks.
+* Simpler and easier to test.
+* Can use hooks to manage state and lifecycle methods.
+  
+Example:
+```jsx
+Copy code
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>;
+}
+
+// Usage
+<Welcome name="Alice" />
+```
+
+#### Class Components
+Definition: Class components are ES6 classes that extend React.Component and have a render method that returns React elements (JSX).
+
+Characteristics:
+
+* Can hold and manage state.
+* Have access to lifecycle methods.
+
+Example:
+```jsx
+class Welcome extends React.Component {
+  render() {
+    return <h1>Hello, {this.props.name}</h1>;
+  }
+}
+
+// Usage
+<Welcome name="Alice" />
+```
+##### Lifecycles of class component
+
+##### Pure Components
+Definition: Pure components are a type of class component that implements shouldComponentUpdate with a shallow prop and state comparison.
+
+Characteristics:
+
+* Avoid unnecessary re-renders, improving performance.
+* Used when the component's render output depends only on its props and state.
+
+Example:
+```jsx
+import React, { PureComponent } from 'react';
+
+class PureWelcome extends PureComponent {
+  render() {
+    return <h1>Hello, {this.props.name}</h1>;
+  }
+}
+
+// Usage
+<PureWelcome name="Alice" />
+```
+
+#### Higher-Order Components (HOC)
+Definition: HOCs are functions that take a component and return a new component with additional props or behavior.
+
+Characteristics:
+
+* Useful for reusing component logic.
+* Do not modify the original component; instead, they compose them.
+
+Example:
+```jsx
+function withLogging(WrappedComponent) {
+  return class extends React.Component {
+    componentDidMount() {
+      console.log('Component Mounted');
+    }
+
+    render() {
+      return <WrappedComponent {...this.props} />;
+    }
+  };
+}
+
+// Usage
+const EnhancedComponent = withLogging(Welcome);
+```
+
+#### Context Components
+Definition: Context components are used to pass data through the component tree without having to pass props down manually at every level.
+
+Characteristics:
+* Useful for global data like themes, user information, or settings.
+
+Example:
+```jsx
+const ThemeContext = React.createContext('light');
+
+class ThemedButton extends React.Component {
+  render() {
+    return (
+      <ThemeContext.Consumer>
+        {theme => <button className={theme}>Button</button>}
+      </ThemeContext.Consumer>
+    );
+  }
+}
+
+// Usage
+<ThemeContext.Provider value="dark">
+  <ThemedButton />
+</ThemeContext.Provider>
+```
+#### Stateless Functional Components: 
+
+These are simpler alternatives to class components and are just JavaScript functions that receive props and return JSX.
+
+#### Other Techniques in Creating Component
+
+##### Render Props
+Definition: A technique for sharing code between React components using a prop whose value is a function.
+
+Characteristics:
+* Allows dynamic behavior in components.
+  
+Example:
+```jsx
+class MouseTracker extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { x: 0, y: 0 };
+  }
+
+  handleMouseMove = (event) => {
+    this.setState({
+      x: event.clientX,
+      y: event.clientY
+    });
+  }
+
+  render() {
+    return (
+      <div onMouseMove={this.handleMouseMove}>
+        {this.props.render(this.state)}
+      </div>
+    );
+  }
+}
+
+// Usage
+<MouseTracker render={({ x, y }) => (
+  <h1>The mouse position is ({x}, {y})</h1>
+)} />
+```
+
+##### Forwarding Refs
+Definition: A technique to automatically forward refs to the underlying DOM element in a component.
+
+This is used in `useRef` hook implementation
+
+Characteristics:
+* Useful for higher-order components and reusable components.
+
+Example:
+```jsx
+const FancyButton = React.forwardRef((props, ref) => (
+  <button ref={ref} className="fancy-button">
+    {props.children}
+  </button>
+));
+
+// Usage
+const ref = React.createRef();
+<FancyButton ref={ref}>Click me!</FancyButton>
+```
+
+## Redux State Management
+
+## React Hooks
+
+## Form Handling
+
+## Material UI Framework
+
+# Questions and Answers
 
 # Coding Snippets
 
