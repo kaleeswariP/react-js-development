@@ -189,7 +189,38 @@ function App() {
 
 ## Core Concepts
 
+* [Virtual DOM]()
+* [Components]()
+* [Context API]()
+* [React Hooks]()
+* [React Router]()
+* [Axios]()
+* [Fetch API]()
+* [Error boundary]()
+* [Lazy loading]()
+* [SSR- Server Side Rendering]()
+* [Adding Style -CSS]()
+* [State and Props]()
+* [Unit Testing]
+
 ### Virtual DOM
+
+The Virtual DOM (VDOM) in React.js is a concept that enhances the performance and efficiency of updating the user interface (UI) in web applications. Here’s a detailed explanation:
+
+#### What is the Virtual DOM?
+
+* Representation of the Real DOM:
+  *The Virtual DOM is an in-memory representation of the actual DOM elements.
+  *It is a lightweight copy of the real DOM that React uses to determine how the UI should change.
+
+* How it Works:
+  * When a component’s state or props change, React creates a new Virtual DOM tree.
+  * React then compares this new Virtual DOM tree with the previous one using, a process called “diffing.”
+
+* Efficient Updates:
+  * The differences (or “diffs”) between the old Virtual DOM and the new one are calculated.
+React then updates only the parts of the real DOM that have changed, rather than re-rendering the entire page.
+  * This minimizes the number of manipulations to the real DOM, which is a costly operation in terms of performance.
 
 ### Components
 In React.js, components are the building blocks of the application. 
@@ -373,21 +404,679 @@ const ref = React.createRef();
 <FancyButton ref={ref}>Click me!</FancyButton>
 ```
 
+### Context API
+The Context API in React.js is a feature that allows for the sharing of state across the entire app (or part of it) without passing props down manually at every level of the component tree.
+
+It provides a way to create global variables that can be passed around, which is useful for things like themes, user settings, and authenticated user data.
+
+#### How Context API Works
+
+1. Context:
+
+  * A Context object (React.createContext()) is created.
+  * It returns an object with two React components: Provider and Consumer.
+
+ ```javascript
+import React, { createContext } from 'react';
+
+const MyContext = createContext();
+
+ ```
+
+2. Provider:
+
+  * The Provider component, is used to wrap parts of your application where you want to make the context available.
+  * It accepts a value prop, the data you want to make available to the components that consume this context.
+
+```javascript
+import React, { useState } from 'react';
+
+const MyProvider = ({ children }) => {
+  const [state, setState] = useState(initialState);
+
+  return (
+    <MyContext.Provider value={{ state, setState }}>
+      {children}
+    </MyContext.Provider>
+  );
+};
+
+``` 
+3. Consumer:
+  * The Consumer component is used to access the context data.
+  * It takes a function as a child, which receives the current context value and returns a React node.
+```javascript
+import React from 'react';
+
+const MyComponent = () => (
+  <MyContext.Consumer>
+    {context => (
+      <div>
+        {context.state.someValue}
+      </div>
+    )}
+  </MyContext.Consumer>
+);
+
+```
+4. useContext Hook:
+
+  * In functional components, the useContext hook can be used to access the context directly.
+  * This hook simplifies the process by eliminating the need for the Consumer component.
+```javascript
+import React from 'react';
+
+const MyComponent = () => (
+  <MyContext.Consumer>
+    {context => (
+      <div>
+        {context.state.someValue}
+      </div>
+    )}
+  </MyContext.Consumer>
+);
+
+```
+
+[Refer sample theme context implementation]()
+
 ## Redux State Management
+
+### Redux
+
+### Redux-saga
+
+### Redux-thunk
+
+[Refer redux-toolkit basics example]()
 
 ## React Hooks
 
 ## Form Handling
+Handling forms in React.js involves managing form state, capturing user input, and responding to form submissions
+
+1. Set Up State to Manage Form Data:
+   * Use the useState hook to create state variables for each form field.
+2. Create Form Elements:
+   * Use HTML form elements such as <input>, <textarea>, and <select> to create the form.
+3. Handle Form Field Changes:
+   * Create event handler functions to update the state when a form field value changes.
+4. Handle Form Submission:
+   * Create a submit handler function to process the form data when the form is submitted.
+  
+### Example: Simple Form
+
+set up state:
+
+```javascript
+import React, { useState } from 'react';
+
+const SimpleForm = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  };
+
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log('Name:', name);
+    console.log('Email:', email);
+    // Here, you can send the data to a server or perform other actions
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>
+          Name:
+          <input type="text" value={name} onChange={handleNameChange} />
+        </label>
+      </div>
+      <div>
+        <label>
+          Email:
+          <input type="email" value={email} onChange={handleEmailChange} />
+        </label>
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default SimpleForm;
+
+```
+This is done using the JSX syntax, as shown in the example above. 
+  * The value attribute of each input is bound to the state variable, and the onChange attribute is used to handle updates to the state.
+  * The `handleNameChange` and `handleEmailChange` functions update the state whenever the user types in the input fields.
+  * The `handleSubmit` function prevents the default form submission behavior and processes the form data (e.g., logging it to the console).
+
+
+### Example: Advanced Form fields with the single state object
+
+form.js
+
+```javascript
+import React, { useState } from 'react';
+
+const AdvancedForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log('Form Data:', formData);
+    // Perform form validation or send data to a server
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>
+          Name:
+          <input type="text" name="name" value={formData.name} onChange={handleChange} />
+        </label>
+      </div>
+      <div>
+        <label>
+          Email:
+          <input type="email" name="email" value={formData.email} onChange={handleChange} />
+        </label>
+      </div>
+      <div>
+        <label>
+          Password:
+          <input type="password" name="password" value={formData.password} onChange={handleChange} />
+        </label>
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default AdvancedForm;
+```
+Form Validation:
+
+You can add validation logic inside the handleSubmit function or use the onChange handlers to validate individual fields.
+
+```javascript
+const handleSubmit = (event) => {
+  event.preventDefault();
+  if (!formData.name) {
+    alert('Name is required);
+    return;
+  }
+  if (!formData.email.includes('@')) {
+    alert('Email is invalid');
+    return;
+  }
+  console.log('Form Data:', formData);
+  // Submit form data
+};
+
+```
+
+For more complex forms, consider using libraries like Formik and Yup for easier form management and validation.
+
 
 ## Material UI Framework
 
+## Axios
+
+## FetchAPI implementation
+The Fetch API is a modern interface for making network requests in JavaScript. 
+
+When using React, the Fetch API can be used to retrieve data from a server and update your components with that data. 
+
+Fetch API:
+
+* The Fetch API provides a simple, standard way to make HTTP requests.
+* It returns a Promise that resolves to the Response object representing the response to the request.
+
+### Sample Fetch API implementation
+
+1. Setting Up the Component:
+  * Create a functional component.
+  * Use the useState and useEffect hooks to manage state and side effects.
+2. Fetching Data:
+  * Use fetch() to make an HTTP request inside the useEffect hook.
+  * Handle the Promise returned by fetch() to process the response.
+3. Updating State:
+  * Update the component’s state with the fetched data to trigger a re-render.
+
+```javascript
+import React, { useState, useEffect } from 'react';
+
+const DataFetchingComponent = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch('https://api.example.com/data')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setData(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        setError(error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  return (
+    <div>
+      <h1>Data from API</h1>
+      <ul>
+        {data.map(item => (
+          <li key={item.id}>{item.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default DataFetchingComponent;
+```
+
+### Advanced Fetch API Implementation
+
+Handing post requests
+```javascript
+fetch('https://api.example.com/data', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ key: 'value' })
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+```
+using Async/await
+
+```javascript
+import React, { useState, useEffect } from 'react';
+
+const AsyncDataFetchingComponent = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://api.example.com/data');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setData(data);
+        setLoading(false);
+      } catch (error) {
+        setError(error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  return (
+    <div>
+      <h1>Data from API</h1>
+      <ul>
+        {data.map(item => (
+          <li key={item.id}>{item.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default AsyncDataFetchingComponent;
+```
+
+## Error boundaries
+
+Error boundaries are React components that catch JavaScript errors anywhere in their child component tree, log those errors, and display a fallback UI instead of crashing the whole component tree.
+
+Creating an Error Boundary
+
+1. Create a Class Component:
+
+  * Error boundaries have to be class components because they rely on lifecycle methods not available in functional components.
+
+2. Implement componentDidCatch and getDerivedStateFromError:
+  * `componentDidCatch(error, info)`: This lifecycle method is called after an error has been thrown by a descendant component.
+  * `getDerivedStateFromError(error)`: This static lifecycle method is called when an error is thrown, allowing you to update the state to show a fallback UI.
+
+### Error boundary Example
+
+```javascript
+import React, { Component } from 'react';
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // You can also log the error to an error reporting service
+    console.error('Error caught by ErrorBoundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // Fallback UI
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children;
+  }
+}
+
+export default ErrorBoundary;
+
+```
+ Wrap the components that may throw errors with the `ErrorBoundary` component.
+
+import React from 'react';
+import ErrorBoundary from './ErrorBoundary';
+import MyComponent from './MyComponent';
+
+const App = () => (
+  <ErrorBoundary>
+    <MyComponent />
+  </ErrorBoundary>
+);
+
+export default App;
+
+### Other error-handling methods
+
+#### Error Handling in Event Handlers
+
+React does not automatically catch errors inside event handlers. You need to handle these manually.
+
+```javascript
+import React from 'react';
+
+const MyComponent = () => {
+  const handleClick = () => {
+    try {
+      // Code that may throw an error
+      throw new Error('An error occurred!');
+    } catch (error) {
+      console.error('Caught an error:', error);
+      // Handle the error appropriately
+    }
+  };
+
+  return <button onClick={handleClick}>Click Me</button>;
+};
+
+export default MyComponent;
+
+```
+#### Error Handling in Asynchronous Code
+
+Errors in asynchronous code (e.g., `fetch` requests) must be handled using `.catch()` for Promises or `try...catch` for `async/await` syntax.
+
+Example with promises
+
+```javascript
+import React, { useEffect, useState } from 'react';
+
+const DataFetchingComponent = () => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch('https://api.example.com/data')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => setData(data))
+      .catch(error => setError(error));
+  }, []);
+
+  if (error) return <p>Error: {error.message}</p>;
+  if (!data) return <p>Loading...</p>;
+
+  return <div>Data: {JSON.stringify(data)}</div>;
+};
+
+export default DataFetchingComponent;
+```
+Example with `async/await`
+
+```javascript
+import React, { useEffect, useState } from 'react';
+
+const AsyncDataFetchingComponent = () => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://api.example.com/data');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setData(data);
+      } catch (error) {
+        setError(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (error) return <p>Error: {error.message}</p>;
+  if (!data) return <p>Loading...</p>;
+
+  return <div>Data: {JSON.stringify(data)}</div>;
+};
+
+export default AsyncDataFetchingComponent;
+
+```
+
+#### Displaying Error Messages
+Displaying error messages to users can improve user experience. You can conditionally render error messages based on the state.
+
+```javascript
+import React, { useState } from 'react';
+
+const LoginForm = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (username === '' || password === '') {
+      setError('Username and password are required');
+    } else {
+      setError(null);
+      // Perform login
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <div>
+        <label>
+          Username:
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          Password:
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </label>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+  );
+};
+
+export default LoginForm;
+
+```
+
 # Questions and Answers
+
+### Error handling in react.js?
+Error handling in React.js is an essential aspect of building robust applications. It involves capturing errors that occur <strong>during rendering<.strong>, **in lifecycle methods**, and **in asynchronous code**, and responding to them appropriately. 
+
+1. Error Boundaries
+Error boundaries are React components that catch JavaScript errors anywhere in their child component tree, log those errors, and display a fallback UI instead of crashing the whole component tree.
+
+Error handling in React involves 
+* using error boundaries to catch errors during rendering and `lifecycle` methods,
+* manually handling errors in event handlers
+* managing asynchronous errors using `try...catch` or `.catch()`.
+* displaying meaningful error messages to users.
+
+By implementing these techniques, you can build more robust and user-friendly React applications.
+
+Refer - [Error boundaries]()
 
 # Coding Snippets
 
 ## Redux toolkit code snippet
 
 Link - https://codesandbox.io/p/sandbox/redux-toolkit-sample-hzw96y?file=%2Fsrc%2Fapp%2Fstore.js%3A9%2C1
+
+## Theme functionality using context API
+
+1. Create the Context:
+
+```javascript
+import { createContext } from 'react';
+
+const ThemeContext = createContext();
+export default ThemeContext;
+
+```
+
+2. Create a Provider:
+
+```javascript
+import React, { useState } from 'react';
+import ThemeContext from './ThemeContext';
+
+const ThemeProvider = ({ children }) => {
+  const [theme, setTheme] = useState('light');
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export default ThemeProvider;
+```
+
+3. Use the Context in a Component:
+
+```javascript
+import React, { useContext } from 'react';
+import ThemeContext from './ThemeContext';
+
+const ThemedComponent = () => {
+  const { theme, toggleTheme } = useContext(ThemeContext);
+
+  return (
+    <div style={{ background: theme === 'light' ? '#fff' : '#333', color: theme === 'light' ? '#000' : '#fff' }}>
+      <p>The current theme is {theme}</p>
+      <button onClick={toggleTheme}>Toggle Theme</button>
+    </div>
+  );
+};
+
+export default ThemedComponent;
+```
+
+4. Wrap Your Application with the Provider:
+
+```javascript
+import React from 'react';
+import ReactDOM from 'react-dom';
+import ThemeProvider from './ThemeProvider';
+import App from './App';
+
+ReactDOM.render(
+  <ThemeProvider>
+    <App />
+  </ThemeProvider>,
+  document.getElementById('root')
+);
+```
+
+### [Simple Form example]()
+### [Advanced form handling example]()
+### [Fetch API with promise example]()
+### [Fetch API with async/await example]()
 
 # Coding concepts Challenges
 **Execution Link of all the challenges** - 
