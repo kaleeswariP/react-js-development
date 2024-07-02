@@ -604,9 +604,9 @@ const MyComponent = () => (
 Handling forms in React.js involves managing form state, capturing user input, and responding to form submissions
 
 1. Set Up State to Manage Form Data:
-   * Use the useState hook to create state variables for each form field.
+   * Use the `useState` hook to create state variables for each form field.
 2. Create Form Elements:
-   * Use HTML form elements such as <input>, <textarea>, and <select> to create the form.
+   * Use HTML form elements such as `<input>`, `<textarea>`, and `<select>` to create the form.
 3. Handle Form Field Changes:
    * Create event handler functions to update the state when a form field value changes.
 4. Handle Form Submission:
@@ -1010,6 +1010,7 @@ export default ErrorBoundary;
 ```
  Wrap the components that may throw errors with the `ErrorBoundary` component.
 
+```
 import React from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import MyComponent from './MyComponent';
@@ -1021,6 +1022,7 @@ const App = () => (
 );
 
 export default App;
+```
 
 ### Other error-handling methods
 
@@ -1173,7 +1175,7 @@ export default LoginForm;
 # Questions and Answers
 
 ### Error handling in react.js?
-Error handling in React.js is an essential aspect of building robust applications. It involves capturing errors that occur <strong>during rendering<.strong>, **in lifecycle methods**, and **in asynchronous code**, and responding to them appropriately. 
+Error handling in React.js is an essential aspect of building robust applications. It involves capturing errors that occur <strong>during rendering</strong>, **in lifecycle methods**, and **in asynchronous code**, and responding to them appropriately. 
 
 1. Error Boundaries
 Error boundaries are React components that catch JavaScript errors anywhere in their child component tree, log those errors, and display a fallback UI instead of crashing the whole component tree.
@@ -1360,9 +1362,10 @@ Choose a CI/CD tool that suits your project needs. Popular choices include:
 Create configuration files for the CI/CD tool. These files define the steps for building, testing, and deploying your application.
 
 Example with GitHub Actions: Create a `.github/workflows/ci-cd.yml` file.
+
 4. Build Process
     * Install Dependencies: Ensure all project dependencies are installed.
-    * Build Application: Compile or build the application (frontend and backend).
+    * Build Application: Compile or build the application `(frontend and backend)`.
           * Frontend: Typically involves compiling assets using tools like Webpack, Babel, etc.
           * Backend: May involve compiling code or setting up the server.
 5. Testing
