@@ -21,8 +21,10 @@
   * [Redux Saga]()
     
 * [React Hooks]()
+  * [Custom Hook]()
   * [Use State Hook]()
   * [Use Effect Hook]()
+  * [Use Ref Hook]()
     
 * [Handling Forms]()
 * [Material UI Framework]()
@@ -267,6 +269,112 @@ class Welcome extends React.Component {
 <Welcome name="Alice" />
 ```
 ##### Lifecycles of class component
+
+**Phases of the Lifecycle**
+1. **Mounting:** When an instance of a component is being created and inserted into the DOM.
+2. **Updating:** When a component is being re-rendered as a result of changes to its props or state.
+3. **Unmounting**: When a component is being removed from the DOM.
+
+**Summary of Lifecycle Methods**<br><br>
+* **Mounting:** `constructor()`, `getDerivedStateFromProps()`, `render()`, `componentDidMount()`.
+* **Updating**: `getDerivedStateFromProps()`, `shouldComponentUpdate()`, `render()`, `getSnapshotBeforeUpdate()`, `componentDidUpdate()`.
+* **Unmounting:** `componentWillUnmount()`.
+
+**Lifecycle Methods**
+
+**Mounting Phase**
+1. `constructor(props)`:
+    * Called before the component is mounted.
+    * Used for initializing state and binding event handlers.
+```javascript
+constructor(props) {
+  super(props);
+  this.state = { count: 0 };
+}
+```
+2. `static getDerivedStateFromProps(props, state)`:
+    * Called right before rendering the element(s) in the DOM.
+    * Used to update the state based on the props.
+```javascript
+static getDerivedStateFromProps(nextProps, prevState) {
+  if (nextProps.someValue !== prevState.someValue) {
+    return { someValue: nextProps.someValue };
+  }
+  return null;
+}
+```
+3. `render()`:
+    * The only required method in a class component.
+    * Returns the JSX representing the component's UI.
+```javascript
+render() {
+  return <div>{this.state.count}</div>;
+}
+```
+4. `componentDidMount()`:
+    * Called after the component is mounted and rendered.
+    * Used for side effects like fetching data from APIs.
+```javascript
+componentDidMount() {
+  fetch('/api/data')
+    .then(response => response.json())
+    .then(data => this.setState({ data }));
+}
+```
+**Updating Phase**<br>
+
+1. `static getDerivedStateFromProps(props, state)`:
+    * Same as in the mounting phase, but called when the component receives new props or state.
+
+2. `shouldComponentUpdate(nextProps, nextState)`:
+    * Called before rendering when new props or state are received.
+    * Used for performance optimization. Return true or false to control whether the component should update.
+
+```javascript
+shouldComponentUpdate(nextProps, nextState) {
+  return nextState.count !== this.state.count;
+}
+```
+3. `render()`:
+    * Same as in the mounting phase.
+      
+4. `getSnapshotBeforeUpdate(prevProps, prevState)`:
+    * Called right before the DOM is updated.
+    * Used to capture some information from the DOM before it changes.
+```javascript
+getSnapshotBeforeUpdate(prevProps, prevState) {
+  if (prevProps.list.length < this.props.list.length) {
+    return this.listRef.scrollHeight;
+  }
+  return null;
+}
+```
+5. `componentDidUpdate(prevProps, prevState, snapshot)`:
+
+    * Called after the component is updated.
+    * Used to operate on the DOM after the changes have been made.
+
+```javascript
+componentDidUpdate(prevProps, prevState, snapshot) {
+  if (snapshot !== null) {
+    this.listRef.scrollTop = this.listRef.scrollHeight - snapshot;
+  }
+}
+```
+
+**Unmounting Phase**<br>
+
+1. `componentWillUnmount()`:
+    * Called right before the component is unmounted and destroyed.
+    * Used for cleanup tasks like invalidating timers, canceling network requests, or cleaning up subscriptions.
+
+```javascript
+componentWillUnmount() {
+  clearInterval(this.timerID);
+}
+```
+
+
 
 ##### Pure Components
 Definition: Pure components are a type of class component that implements shouldComponentUpdate with a shallow prop and state comparison.
@@ -636,6 +744,90 @@ const handleSubmit = (event) => {
 
 For more complex forms, consider using libraries like Formik and Yup for easier form management and validation.
 
+### Dynamic Form handling
+Creating a dynamic form in React that can handle multiple data types involves several steps, including defining the form structure, managing form state, handling input changes, and dynamically rendering form fields based on the data types.
+
+**Step-by-Step Guide**<br><br>
+1. Define the Form Structure:
+    * Create a schema or configuration that defines the form fields and their data types.
+2. Manage Form State:
+    * Use React state to manage the form data.
+3. Handle Input Changes:
+    * Create a function to handle changes to the form inputs and update the state accordingly.
+4. Dynamically Render Form Fields:
+    * Use the schema to dynamically render form fields based on their data types.
+      
+Example:
+
+```javascript
+import React, { useState } from 'react';
+
+const formSchema = [
+  { name: 'name', label: 'Name', type: 'text', required: true },
+  { name: 'age', label: 'Age', type: 'number', required: true },
+  { name: 'email', label: 'Email', type: 'email', required: true },
+  { name: 'dob', label: 'Date of Birth', type: 'date', required: false },
+  { name: 'isActive', label: 'Active', type: 'checkbox', required: false }
+];
+
+const DynamicForm = () => {
+  const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    formSchema.forEach(field => {
+      if (field.required && !formData[field.name]) {
+        newErrors[field.name] = `${field.label} is required`;
+      }
+    });
+    return newErrors;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+    } else {
+      setErrors({});
+      console.log('Form Data:', formData);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {formSchema.map((field) => (
+        <div key={field.name}>
+          <label>
+            {field.label}:
+            <input
+              type={field.type}
+              name={field.name}
+              value={field.type === 'checkbox' ? undefined : formData[field.name] || ''}
+              checked={field.type === 'checkbox' ? formData[field.name] || false : undefined}
+              onChange={handleChange}
+            />
+          </label>
+          {errors[field.name] && <span style={{ color: 'red' }}>{errors[field.name]}</span>}
+        </div>
+      ))}
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default DynamicForm;
+
+```
 
 ## Material UI Framework
 
@@ -996,6 +1188,211 @@ By implementing these techniques, you can build more robust and user-friendly Re
 
 Refer - [Error boundaries]()
 
+### How do you configure webpack in the React JS app?
+Refer [webpack]()
+### How do you manage the side effects of the redux state management using redux-thunk or redux-saga?
+Refer [Redux Thunk]() and [Redux saga]()
+
+**What is Redux middleware**<br><br>
+A Redux middleware lies between an action and a reducer. This enables actions to contain something else other than a plain object, as long as the middleware intercepts this, performs its logic, and returns a plain object to pass along to the reducer.
+
+**Redux Thunk**<br><br>
+Redux Thunk, a common alternative to Redux Saga, *allows functions to be passed into the Redux store dispatch, which checks to see if it is a function or an action object*, executing the function in the former case, and directly passing along the action object to the reducer in the latter case. 
+
+These functions can then perform whatever complex asynchronous logic that they want and produce a plain action object to be then passed into the reducer.
+
+[Refer sample](https://medium.com/@usamaijaz912/redux-thunk-real-examples-for-better-understanding-ed66ab732ac6)
+
+**Redux Saga**<br><br>
+Redux Sagas are slightly different in that *a separate set of actions is defined in your Redux application, which is captured exclusively by watcher functions (as part of your saga)*. 
+
+Upon capturing the action, the saga will execute the corresponding logic and dispatch a resultant action to your application's reducer. 
+
+The saga essentially acts as a separate thread to your application, listening for specific actions from your main application to perform complex asynchronous tasks and updating your application's state once it is completed.
+
+
+### How to reduce the bundle size of the React JS applications?
+
+
+### Can you detail how you would create a dynamic form in React that can handle multiple data types?
+
+Refer to [Dynamic form handling]()
+
+### When would you choose to use a class component over a functional component in React?
+In modern React development, functional components are generally preferred due to their simplicity and the power provided by hooks. However, there are still certain situations where class components might be chosen over functional components. 
+
+#### When to Choose Class Components:
+1. **Legacy Codebases:** If you are working on an older codebase that primarily uses class components, it might be more consistent and practical to continue using class components to maintain a uniform codebase.
+   
+2. **Existing Expertise:** If your team has significant experience with class components and is less familiar with hooks, there might be a steeper learning curve to switch to functional components and hooks.
+3. **Library or Framework Constraints:** Some third-party libraries or frameworks may still rely on or provide examples in class components. In such cases, using class components might simplify integration.
+4. **Understanding Component Lifecycle:** If you need explicit control over component lifecycle methods (like shouldComponentUpdate, componentDidCatch), and are more comfortable using lifecycle methods directly instead of hooks, you might prefer class components.
+
+##### Real-time Use cases
+1. **Error Boundaries:** As of now, error boundaries can only be implemented using class components. Functional components do not support the lifecycle methods (componentDidCatch and getDerivedStateFromError) required for error boundaries.
+
+Refer to [Error boundaries]()
+
+2. **Complex Lifecycle Logic:**
+
+If your component has complex lifecycle management that is better understood and managed with class lifecycle methods (`componentDidMount`, `componentDidUpdate`, `componentWillUnmount`), you might prefer using a class component. However, with hooks like `useEffect`, most of these scenarios can also be managed in functional components.
+
+### How do you handle state management in a complex React application with nested components?
+
+1. **Lifting State Up**: Lifting state up involves moving the state to the closest common ancestor of the components that need access to it. This method works well for relatively simple applications.
+2. **Context API**: The Context API allows you to create a global state that can be accessed by any component in the tree without prop drilling. This is useful for medium-sized applications.
+3. **Redux:** Redux is a state management library that provides a predictable state container. It is suitable for large and complex applications.
+   
+
+### How will you avoid rerendering child components in react?
+
+1. **Use `React.memo`:** `React.memo` is a higher-order component that prevents a functional component from re-rendering if its props have not changed. Refer to [React Momo]()
+2. **Use `useCallback` and `useMemo`:** `useCallback` and `useMemo` hooks help in memoizing functions and values, respectively, so that they are not re-created on every render.
+3. **Split State into Multiple `useState` Hooks:** When state is managed using multiple `useState` hooks instead of a single state object, it can help reduce unnecessary re-renders.
+4. **Use `shouldComponentUpdate` in Class Components:** In class components, you can override the shouldComponentUpdate lifecycle method to prevent unnecessary re-renders.
+5. **Use `PureComponent`:** React.PureComponent automatically implements shouldComponentUpdate with a shallow prop and state comparison.
+6. **Avoid Inline Functions and Objects:** Inline functions and objects are recreated on every render, causing child components to re-render. Using useCallback for functions and useMemo for objects helps prevent this.
+
+Example for Inline function and Objects:
+```javascript
+const ParentComponent = () => {
+  const [count, setCount] = useState(0);
+  const [text, setText] = useState('');
+
+  const handleClick = useCallback(() => {
+    console.log('Button clicked');
+  }, []);
+
+  const memoizedValue = useMemo(() => ({ text }), [text]);
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <ChildComponent onClick={handleClick} value={memoizedValue} />
+    </div>
+  );
+};
+
+const ChildComponent = React.memo(({ onClick, value }) => {
+  console.log('ChildComponent rendered');
+  return (
+    <div>
+      <button onClick={onClick}>Click me</button>
+      <div>{value.text}</div>
+    </div>
+  );
+});
+
+```
+### Is there any other available to communicate to the child component except props?
+Yes, there are several other ways to communicate with child components in React besides using props. 
+
+1. Context API
+2. Refs
+3. Custom Hooks
+4. State Management Libraries
+
+
+### How do you optimize webpage loading speeds while dealing with large CSS files?
+
+1. **Minify CSS:** Minifying CSS files reduces their size by removing unnecessary characters such as spaces, comments, and line breaks.
+    Tools: CSSNano, CleanCSS
+2. **Split CSS:** Split your CSS into smaller chunks and load them as needed. This can be done using code-splitting techniques or by separating critical CSS from non-critical CSS.
+
+  * Critical CSS: Load essential CSS required for above-the-fold content first.
+  * Non-critical CSS: Load the rest of the CSS asynchronously.
+```html
+<!-- Inline critical CSS -->
+<style>
+  /* Critical CSS here */
+</style>
+<!-- Load non-critical CSS asynchronously -->
+<link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="styles.css"></noscript>
+```
+3. **Use CSS-in-JS:** CSS-in-JS libraries, such as styled-components or emotion, help scope CSS to specific components, reducing the overall size of CSS.
+
+Example with styled-components:
+```javascript
+import styled from 'styled-components';
+
+const Button = styled.button`
+  background: blue;
+  color: white;
+`;
+```
+4. **Optimize Images and Fonts:** Large images and fonts can slow down page load times, which indirectly affects the perceived performance of CSS. Optimizing these assets is also crucial.
+
+Images: Compress images using tools like ImageOptim or TinyPNG.
+Fonts: Use font-display: swap to ensure text remains visible during font loading.
+
+5. **Lazy Load CSS:** Lazy load CSS files that are not immediately needed. This can be done using JavaScript.
+
+Example:
+```javascript
+function loadCSS(href) {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = href;
+  document.head.appendChild(link);
+}
+
+loadCSS('non-critical.css');
+```
+6. **Tree-Shaking Unused CSS**
+
+### Can you outline your process for setting up a CI/CD pipeline for a full-stack application?
+
+Setting up a CI/CD (Continuous Integration/Continuous Deployment) pipeline for a full-stack application involves several steps. This includes automating the build, test, and deployment processes to ensure efficient and reliable delivery of updates. 
+
+1. **Project Setup**
+    * Source Control Management: Ensure your project is in a version control system like Git and hosted on platforms such as GitHub, GitLab, or Bitbucket.
+    * Branching Strategy: Define a branching strategy (e.g., GitFlow) to manage the development process.
+2. **CI/CD Tool Selection**
+Choose a CI/CD tool that suits your project needs. Popular choices include:
+* Jenkins
+* GitHub Actions
+* GitLab CI
+* CircleCI
+* Travis CI
+3. **Configuration**
+Create configuration files for the CI/CD tool. These files define the steps for building, testing, and deploying your application.
+
+Example with GitHub Actions: Create a `.github/workflows/ci-cd.yml` file.
+4. Build Process
+    * Install Dependencies: Ensure all project dependencies are installed.
+    * Build Application: Compile or build the application (frontend and backend).
+          * Frontend: Typically involves compiling assets using tools like Webpack, Babel, etc.
+          * Backend: May involve compiling code or setting up the server.
+5. Testing
+    * Unit Tests: Run unit tests to ensure individual components work correctly.
+    * Integration Tests: Run integration tests to ensure components work together.
+    * End-to-End Tests: Run end-to-end tests to simulate user interactions and verify the entire application workflow.
+6. Linting and Code Quality
+    * Linting: Run linters (e.g., ESLint) to ensure code quality and style guidelines.            * Static Analysis: Run static analysis tools to detect potential issues.
+7. Deployment
+    * Staging Environment: Deploy to a staging environment for further testing.
+    * Production Environment: Deploy to production after successful testing in the staging environment.
+Deployment Example:
+Heroku: For a Node.js application, you can use GitHub Actions to deploy to Heroku.
+8. Notifications
+    * Set up notifications (e.g., Slack, email) to inform the team about the status of builds, tests, and deployments.
+9. Monitoring and Rollback
+    * Monitoring: Implement monitoring to track application performance and errors.
+    * Rollback: Define rollback procedures in case of deployment failures.
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------
+# Brief about concepts/key points:   
+
+------------------------------------------------------------------------------------------
 # Coding Snippets
 
 ## Redux toolkit code snippet
@@ -1005,6 +1402,9 @@ Link - https://codesandbox.io/p/sandbox/redux-toolkit-sample-hzw96y?file=%2Fsrc%
 ## Theme functionality using context API
 
 1. Create the Context:
+2. Refs
+3. Custom Hooks
+4. State Management Libraries
 
 ```javascript
 import { createContext } from 'react';
@@ -1075,6 +1475,7 @@ ReactDOM.render(
 
 ### [Simple Form example]()
 ### [Advanced form handling example]()
+### [Dynamic form sample]()
 ### [Fetch API with promise example]()
 ### [Fetch API with async/await example]()
 
@@ -1398,9 +1799,214 @@ export function Counter() {
   );
 }
 ```
+## 3. How do you show file upload/ task process update in react client with node server background?
+Using Server-sent events.
+
+Ref to [post](https://medium.com/@imanshurathore/server-sent-events-in-react-30021f9ffc4a)
+
+# [React Project Development Tools]()
+  * [Storybook]()
+  * [Webpack]()
+  * [Charts libraries]()
+  * [Jest & React Testing Library]()
+  * [Babel, env, prettier, linter]()
+
+### Webpack
+Webpack is a powerful module bundler primarily used for JavaScript, but it can transform front-end assets like HTML, CSS, and images if the proper plugins and loaders are included. 
+
+In a React.js application, Webpack is often used to bundle JavaScript files and ensure that your application can be run in a browser.
+
+It helps in managing dependencies, optimizing the code for production, and improving performance.
+
+1. Module Bundling:
+Bundles JavaScript files and other assets into single or multiple bundles for easier inclusion in your HTML.
+
+2. Code Splitting:
+Splits code into various bundles that can be loaded on demand, improving the initial load time of your application.
+
+3. Loaders:
+Transforms files into modules as they are processed. For example, Babel loader to transpile ES6+ code into ES5.
+
+4. Plugins:
+Extend Webpack's functionality. For example, HtmlWebpackPlugin generates an HTML file and injects your bundles into it.
+
+6. Development Server:
+Includes a development server that provides live reloading and hot module replacement for a better development experience.
+
+#### Setting Up Webpack in a React.js Application
+Step 1: Initialize Your Project
+Step 2: Install Dependencies
+
+```bash
+mkdir react-webpack-app
+cd react-webpack-app
+npm init -y
+
+Step 2: Install Dependencies
+
+```
+Step 3: Project Structure
+```arduino
+react-webpack-app/
+│
+├── src/
+│   ├── index.js
+│   ├── App.js
+│   ├── styles.css
+│
+├── public/
+│   └── index.html
+│
+├── .babelrc
+├── webpack.config.js
+└── package.json
+
+```
+Step 4: Configure Babel
+Create a `.babelrc` file to configure Babel:
+
+```json
+{
+  "presets": ["@babel/preset-env", "@babel/preset-react"]
+}
+
+```
+Step 5: Configure Webpack
+
+Create a `webpack.config.js` file to configure Webpack:
+
+```
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+module.exports = {
+  entry: './src/index.js',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist')
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: 'babel-loader'
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      }
+    ]
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      template: './public/index.html'
+    })
+  ],
+  devServer: {
+    contentBase: path.join(__dirname, 'dist'),
+    compress: true,
+    port: 9000
+  },
+  mode: 'development'
+};
+```
+Step 6: Create Source Files
+
+Create `src/index.js`:
+```javascript
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import './styles.css';
+
+ReactDOM.render(<App />, document.getElementById('root'));
+```
+Create `src/App.js`:
+
+
+```javascript
+import React from 'react';
+
+const App = () => {
+  return (
+    <div>
+      <h1>Hello, Webpack and React!</h1>
+    </div>
+  );
+};
+
+export default App;
+```
+Create s`rc/styles.css`:
+
+```css
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+```
+Create `public/index.html`:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Webpack App</title>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
+```
+Step 7: Add Scripts to package.json
+Update `package.json` to include scripts for building and running the development server:
+
+```json
+{
+  "name": "react-webpack-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack serve --open --mode development",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/preset-react": "^7.14.5",
+    "babel-loader": "^8.2.2",
+    "clean-webpack-plugin": "^4.0.0",
+    "css-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.3.2",
+    "style-loader": "^3.2.1",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^3.11.2"
+  }
+}
+```
+Step 8: Run the Development Server
+Start the development server by running:
+
+`npm start`
 
 
 
+## Other Frameworks]
+  * [Next JS]()
+  * [Vue JS]()
+  * [Gatsby]()
 
 
 
